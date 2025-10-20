@@ -1,84 +1,46 @@
-import { useEffect } from 'react'
+
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { ProductsAPI } from '../../services/api'
-import { useToast } from '../../components/ui/ToastProvider'
+import { useToast } from '../../ui/Toast'
 
-const Schema = z.object({
-  codigo_unico: z.string().min(1, 'Requerido'),
-  nombre: z.string().min(1, 'Requerido'),
-  precio: z.coerce.number().min(0, '>= 0').optional(),
-  costo: z.coerce.number().min(0, '>= 0').optional(),
-  stock: z.coerce.number().min(0, '>= 0').optional(),
-})
-type Form = z.infer<typeof Schema>
-
-export default function ProductForm() {
-  const { codigo_unico } = useParams()
-  const isEdit = !!codigo_unico
-  const navigate = useNavigate()
+export default function ProductForm(){
+  const { codigo } = useParams()
+  const isEdit = !!codigo
+  const [data,setData]=useState<any>({ codigo_unico:'', nombre:'', categoria:'', costo:0, precio:0, stock:0 })
   const { show } = useToast()
+  const nav = useNavigate()
 
-  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<Form>({
-    resolver: zodResolver(Schema),
-    defaultValues: { codigo_unico: '', nombre: '', precio: 0, costo: 0, stock: 0 }
-  })
+  useEffect(()=>{
+    if (isEdit) ProductsAPI.get(codigo!).then(setData).catch(e=>show(e.message,'error'))
+  },[codigo])
 
-  useEffect(() => {
-    if (isEdit) {
-      ProductsAPI.get(codigo_unico!).then((d:any) => {
-        for (const k of Object.keys(d)) (setValue as any)(k, d[k])
-      }).catch((e:any) => show(e.message, 'Error'))
-    }
-  }, [codigo_unico])
-
-  const save = async (data: Form) => {
-    try {
-      if (isEdit) await ProductsAPI.update(codigo_unico!, data)
+  const save=async(e:any)=>{
+    e.preventDefault()
+    try{
+      if (isEdit) await ProductsAPI.update(codigo!, data)
       else await ProductsAPI.create(data)
-      show('Producto guardado', 'Éxito')
-      navigate('/products')
-    } catch (e: any) {
-      show(e.message, 'Error')
-    }
+      show('Guardado','ok')
+      nav('/products')
+    }catch(err:any){ show(err.message,'error') }
   }
 
   return (
-    <form className="card grid gap-3 max-w-xl" onSubmit={handleSubmit(save)}>
-      <h1 className="text-xl font-semibold">{isEdit ? 'Editar' : 'Nuevo'} producto</h1>
-      <label className="label">Código único</label>
-      <input className="input" disabled={isEdit} {...register('codigo_unico')} />
-      {errors.codigo_unico && <p className="text-red-600 text-sm">{errors.codigo_unico.message}</p>}
-
-      <label className="label">Nombre</label>
-      <input className="input" {...register('nombre')} />
-      {errors.nombre && <p className="text-red-600 text-sm">{errors.nombre.message}</p>}
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="label">Precio</label>
-          <input className="input" type="number" step="0.01" {...register('precio')} />
-          {errors.precio && <p className="text-red-600 text-sm">{errors.precio.message}</p>}
+    <div className="card" style={{maxWidth:700}}>
+      <h1>{isEdit ? 'Editar' : 'Nuevo'} producto</h1>
+      <form className="grid" onSubmit={save}>
+        <label>Código<input className="input" value={data.codigo_unico} onChange={e=>setData({...data, codigo_unico:e.target.value})} disabled={isEdit} /></label>
+        <label>Nombre<input className="input" value={data.nombre} onChange={e=>setData({...data, nombre:e.target.value})} /></label>
+        <label>Categoría<input className="input" value={data.categoria||''} onChange={e=>setData({...data, categoria:e.target.value})} /></label>
+        <div className="row">
+          <label style={{flex:1}}>Costo<input className="input" type="number" value={data.costo} onChange={e=>setData({...data, costo:+e.target.value})} /></label>
+          <label style={{flex:1}}>Precio<input className="input" type="number" value={data.precio} onChange={e=>setData({...data, precio:+e.target.value})} /></label>
+          <label style={{flex:1}}>Stock<input className="input" type="number" value={data.stock} onChange={e=>setData({...data, stock:+e.target.value})} /></label>
         </div>
-        <div>
-          <label className="label">Costo</label>
-          <input className="input" type="number" step="0.01" {...register('costo')} />
-          {errors.costo && <p className="text-red-600 text-sm">{errors.costo.message}</p>}
+        <div className="row">
+          <button className="btn">Guardar</button>
         </div>
-      </div>
-
-      <label className="label">Stock</label>
-      <input className="input" type="number" {...register('stock')} />
-      {errors.stock && <p className="text-red-600 text-sm">{errors.stock.message}</p>}
-
-      <div className="flex gap-2">
-        <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Guardando...' : 'Guardar'}
-        </button>
-        <button className="btn btn-ghost" type="button" onClick={()=>history.back()}>Cancelar</button>
-      </div>
-    </form>
+      </form>
+    </div>
   )
 }

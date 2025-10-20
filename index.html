@@ -1,11 +1,47 @@
+
 <!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gratus SGV</title>
+    <style>
+      :root{
+        --bg:#0f1222; --card:#131a2f; --muted:#8da3c6; --accent:#4f7cff; --ok:#2ecc71; --bad:#ff6b6b; --text:#eaf0ff;
+      }
+      @media (prefers-color-scheme: light){
+        :root{ --bg:#f7f9ff; --card:#ffffff; --muted:#475569; --accent:#345dff; --ok:#1ea55b; --bad:#d64545; --text:#0b1431; }
+      }
+      *{box-sizing:border-box}
+      body{ margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif; background: var(--bg); color: var(--text); }
+      .container{max-width:1100px;margin:0 auto;padding:20px}
+      .navbar{display:flex;gap:12px;align-items:center;padding:10px 20px;background:var(--card);border-bottom:1px solid #0002;position:sticky;top:0;z-index:10}
+      .navbar a{color:inherit;text-decoration:none;padding:6px 10px;border-radius:8px}
+      .navbar a.active, .navbar a:hover{background:#ffffff12}
+      .grid{display:grid;gap:16px}
+      .card{background:var(--card);border:1px solid #0003;border-radius:16px;padding:16px;box-shadow:0 4px 24px #00000022}
+      .btn{cursor:pointer;border:0;border-radius:12px;padding:10px 14px;background:var(--accent);color:white;font-weight:600}
+      .btn.secondary{background:#ffffff16;color:inherit}
+      .btn.danger{background:var(--bad)}
+      .btn.google{display:flex;align-items:center;gap:8px;background:#ffffff;color:#1f2937;border:1px solid #0002}
+      .input, .select{width:100%;padding:10px;border-radius:12px;border:1px solid #0003;background:#00000010;color:inherit}
+      @media (prefers-color-scheme: light){ .input, .select{ background:#f3f4f6 } }
+      table{width:100%;border-collapse:collapse}
+      .table th,.table td{padding:10px;border-bottom:1px solid #0002;text-align:left}
+      .kpi{display:flex;flex-direction:column;gap:2px}
+      .kpi .label{font-size:12px;color:var(--muted)}
+      .kpi .value{font-size:28px;font-weight:800}
+      .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+      .spacer{flex:1}
+      .toast{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px}
+      .pill{padding:6px 10px;background:#ffffff14;border-radius:999px;border:1px solid #0003}
+      .muted{color:var(--muted);font-size:12px}
+      .wrap{white-space:pre-wrap}
+      .code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px}
+      .hr{height:1px;background:#0002;border:0;margin:10px 0}
+    </style>
   </head>
-  <body class="bg-gray-50">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

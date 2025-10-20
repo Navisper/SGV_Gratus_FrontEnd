@@ -1,21 +1,21 @@
+
 import { useEffect, useState } from 'react'
 import { ReportsAPI } from '../services/api'
-import { useToast } from '../components/ui/ToastProvider'
+import { useToast } from '../ui/Toast'
 
-export default function Dashboard() {
-  const [summary, setSummary] = useState<any>(null)
+export default function Dashboard(){
+  const [summary,setSummary]=useState<any>(null)
   const { show } = useToast()
-  useEffect(() => {
-    ReportsAPI.summary().then(setSummary).catch((e) => show(e.message, 'Error'))
-  }, [])
+  useEffect(()=>{ ReportsAPI.summary().then(setSummary).catch(e=>show(e.message,'error')) },[])
   return (
-    <div className="grid gap-6">
-      <h1 className="text-2xl font-semibold">Panel</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card"><div className="text-sm text-gray-500">Productos</div><div className="text-2xl font-bold">{summary?.num_productos ?? '-'}</div></div>
-        <div className="card"><div className="text-sm text-gray-500">Ventas (total)</div><div className="text-2xl font-bold">${summary?.total_vendido?.toLocaleString?.() ?? '-'}</div></div>
-        <div className="card"><div className="text-sm text-gray-500">Facturas</div><div className="text-2xl font-bold">{summary?.num_facturas ?? '-'}</div></div>
+    <div className="grid">
+      <h1>Panel</h1>
+      <div className="grid" style={{gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))'}}>
+        <div className="card kpi"><div className="label">Productos</div><div className="value">{summary?.num_productos ?? '-'}</div></div>
+        <div className="card kpi"><div className="label">Ventas</div><div className="value">{summary?.num_ventas ?? '-'}</div></div>
+        <div className="card kpi"><div className="label">Total vendido</div><div className="value">$ {summary?.total_vendido?.toLocaleString?.('es-CO') ?? '-'}</div></div>
       </div>
+      <div className="muted">Resumen desde <span className="code">/reports/summary</span></div>
     </div>
   )
 }

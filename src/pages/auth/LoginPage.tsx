@@ -1,68 +1,46 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { AuthAPI } from '../../services/api'
-import { useAuth } from '../../store/auth'
-import { useToast } from '../../components/ui/ToastProvider'
 
-const LoginSchema = z.object({ email: z.string().email('Email inválido'), password: z.string().min(6, 'Mínimo 6 caracteres') })
-type LoginForm = z.infer<typeof LoginSchema>
+import { useState } from 'react'
+import { AuthAPI } from '../../services/api'
+import { useNavigate } from 'react-router-dom'
+import { useToast } from '../../ui/Toast'
 
 export default function LoginPage(){
-  const { setToken } = useAuth()
-  const navigate = useNavigate()
+  const [email,setEmail]=useState('')
+  const [password,setPassword]=useState('')
+  const [loading,setLoading]=useState(false)
+  const nav=useNavigate()
   const { show } = useToast()
-  const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-  const [loading, setLoading] = useState(false)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
-    resolver: zodResolver(LoginSchema),
-    defaultValues: { email: 'admin@example.com', password: 'admin123' }
-  })
-
-  const onSubmit = async (data: LoginForm) => {
-    setLoading(false)
-    try {
-      setLoading(true)
-      const res = await AuthAPI.login(data.email, data.password) as any
-      setToken(res.access_token)
-      navigate('/')
-    } catch (e: any) {
-      show(e.message || 'Error al iniciar sesión', 'Error')
-    } finally {
-      setLoading(false)
-    }
+  const submit=async(e:any)=>{
+    e.preventDefault()
+    setLoading(true)
+    try{
+      await AuthAPI.login(email,password)
+      show('Bienvenido','ok')
+      nav('/')
+    }catch(err:any){
+      show(err.message,'error')
+    }finally{ setLoading(false) }
   }
 
-  const handleGoogleLogin = () => { window.location.href = `${BASE}/auth/google/login` }
+  const loginGoogle=()=>{ AuthAPI.googleLoginRedirect() }
 
   return (
-    <div className="min-h-screen grid place-items-center">
-      <form onSubmit={handleSubmit(onSubmit)} className="card w/full max-w-sm">
-        <h1 className="text-xl font-semibold mb-4">Ingresar a Gratus SGV</h1>
-        <label className="label">Email</label>
-        <input className="input" type="email" {...register('email')} />
-        {errors.email && <p className="text-red-600 text-sm">{errors.email.message}</p>}
-
-        <label className="label mt-3">Contraseña</label>
-        <input className="input" type="password" {...register('password')} />
-        {errors.password && <p className="text-red-600 text-sm">{errors.password.message}</p>}
-
-        <button className="btn btn-primary mt-4 w-full" disabled={loading}>{loading ? 'Ingresando...' : 'Entrar'}</button>
-
-        <div className="flex items-center my-4">
-          <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="mx-2 text-sm text-gray-500">o</span>
-          <div className="flex-1 h-px bg-gray-300"></div>
-        </div>
-
-        <button type="button" onClick={handleGoogleLogin} className="btn btn-ghost w-full border-gray-300 flex items-center justify-center gap-2">
-          <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
-          Iniciar sesión con Google
+    <div className="container" style={{maxWidth:480}}>
+      <div className="card">
+        <h1>Iniciar sesión</h1>
+        <form className="grid" onSubmit={submit}>
+          <input className="input" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
+          <input className="input" type="password" placeholder="Contraseña" value={password} onChange={e=>setPassword(e.target.value)} />
+          <button className="btn" disabled={loading}>{loading?'Ingresando...':'Entrar'}</button>
+        </form>
+        <div className="hr"></div>
+        <button className="btn google" onClick={loginGoogle}>
+          <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M44.5 20H24v8.5h11.8C34.9 32.9 30.1 36 24 36c-6.6 0-12.2-4.3-14.2-10.2S9 13.6 15 11.6 28.4 12 30.4 18h8.8C37.4 8.4 27.7 2.6 17.9 5.2S1.4 18.5 4 28.3C6.6 38.1 16.3 43.9 26.1 41.3c7.7-2 13.3-8.8 13.8-16.6.2-1.6.2-3.2-.1-4.7z" fill="currentColor"/></svg>
+          Iniciar con Google
         </button>
-      </form>
+        <p className="muted">buscas el registrarte <code>pues no mi bro</code>.</p>
+      </div>
     </div>
   )
 }

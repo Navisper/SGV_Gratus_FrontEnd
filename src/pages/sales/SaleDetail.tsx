@@ -1,64 +1,56 @@
+
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { SalesAPI, InvoicesAPI } from '../../services/api'
-import { useToast } from '../../components/ui/ToastProvider'
+import { useToast } from '../../ui/Toast'
 
-export default function SaleDetail() {
-  const { sale_id } = useParams()
-  const [sale, setSale] = useState<any>(null)
-  const [invoice, setInvoice] = useState<any>(null)
+export default function SaleDetail(){
+  const { saleId } = useParams()
+  const [sale,setSale]=useState<any>(null)
   const { show } = useToast()
-  const navigate = useNavigate()
 
-  useEffect(() => {
-    if (!sale_id) return
-    SalesAPI.get(sale_id).then(setSale).catch((e:any)=>show(e.message,'Error'))
-  }, [sale_id])
+  useEffect(()=>{ SalesAPI.get(saleId!).then(setSale).catch(e=>show(e.message,'error')) },[saleId])
 
-  const generateInvoice = async () => {
-    if (!sale_id) return
-    try {
-      const inv = await InvoicesAPI.generate(sale_id) as any
-      setInvoice(inv)
-    } catch (e:any) {
-      show(e.message, 'Error')
-    }
+  const genInvoice = async()=>{
+    try{ await InvoicesAPI.generate(saleId!); show('Factura generada','ok') }catch(err:any){ show(err.message,'error') }
+  }
+  const cancel = async()=>{
+    if (!confirm('¿Anular venta?')) return
+    try{ await SalesAPI.cancel(saleId!); show('Venta anulada','ok') }catch(err:any){ show(err.message,'error') }
   }
 
+  if (!sale) return <div className="card">Cargando...</div>
   return (
-    <div className="grid gap-4">
-      <h1 className="text-2xl font-semibold">Detalle de venta</h1>
-      {!sale ? <div className="card">Cargando...</div> : (
-        <div className="card grid gap-2">
-          <div className="text-sm text-gray-500">ID: {sale.id}</div>
-          <div className="text-sm text-gray-500">Fecha: {new Date(sale.fecha || sale.created_at || Date.now()).toLocaleString()}</div>
-          <div className="overflow-auto">
-            <table className="table">
-              <thead><tr><th className="th">Código</th><th className="th">Nombre</th><th className="th">Cantidad</th><th className="th">Precio</th><th className="th">Subtotal</th></tr></thead>
-              <tbody>
-                {sale.items?.map((it:any) => (
-                  <tr key={it.codigo_unico}>
-                    <td className="td">{it.codigo_unico}</td>
-                    <td className="td">{it.nombre}</td>
-                    <td className="td">{it.cantidad}</td>
-                    <td className="td">${it.precio_unitario}</td>
-                    <td className="td">${it.precio_unitario * it.cantidad}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="text-right font-semibold">Total: ${sale.total}</div>
-
-          <div className="flex gap-2">
-            <button className="btn btn-primary" onClick={generateInvoice}>Generar factura</button>
-            {invoice && (
-              <Link className="btn btn-ghost" to={`/invoices/print/${invoice.id || invoice.consecutivo}`}>Imprimir comprobante</Link>
-            )}
-            <button className="btn btn-ghost" onClick={()=>navigate(-1)}>Volver</button>
-          </div>
+    <div className="grid">
+      <div className="row">
+        <h1>Venta {String(sale.id).slice(0,8)}</h1>
+        <span className="spacer" />
+        <button className="btn secondary" onClick={genInvoice}>Generar factura</button>
+        <button className="btn danger" onClick={cancel}>Anular</button>
+      </div>
+      <div className="card">
+        <div className="grid" style={{gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))'}}>
+          <div><div className="label">Fecha</div><div>{sale.created_at}</div></div>
+          <div><div className="label">Total</div><div>$ {sale.total?.toLocaleString?.('es-CO')}</div></div>
+          <div><div className="label">Pago</div><div>{sale.metodo_pago}</div></div>
         </div>
-      )}
+        <div className="hr"></div>
+        <table className="table">
+          <thead><tr><th>Código</th><th>Nombre</th><th>Cant</th><th>Precio</th><th>Subtotal</th></tr></thead>
+          <tbody>
+            {sale.items?.map((it:any)=>(
+              <tr key={it.id}>
+                <td className="code">{it.codigo_unico}</td>
+                <td>{it.nombre}</td>
+                <td>{it.cantidad}</td>
+                <td>${it.precio_unitario?.toLocaleString?.('es-CO')}</td>
+                <td>${it.subtotal?.toLocaleString?.('es-CO')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Link to="/sales/new" className="btn">Nueva venta</Link>
     </div>
   )
 }
