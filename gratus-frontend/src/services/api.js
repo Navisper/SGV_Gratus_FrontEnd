@@ -4,10 +4,10 @@ import axios from 'axios'
 const getApiBaseUrl = () => {
     // En desarrollo, usar localhost
     if (import.meta.env.DEV) {
-        return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+        return import.meta.env.VITE_API_BASE_URL || 'https://sgv-gratus-backend.onrender.com'
     }
     // En producción, usar la variable de entorno
-    return import.meta.env.VITE_API_BASE_URL || 'https://tu-api-en-render.onrender.com'
+    return import.meta.env.VITE_API_BASE_URL || 'https://sgv-gratus-backend.onrender.com'
 }
 
 const API_BASE_URL = getApiBaseUrl()
