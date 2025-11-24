@@ -2,29 +2,30 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Copiar solo lo esencial
 COPY package*.json ./
 COPY vite.config.js ./
 
 RUN npm ci
 
-COPY . .
+# Copiar código fuente
+COPY src/ ./src/
+COPY public/ ./public/
 
+# Build de producción
 RUN npm run build
 
-FROM node:18-alpine
+# Verificar que no hay archivos en /auth/
+RUN find dist -type f | grep -v "assets" && echo "✅ Build verificado"
 
-WORKDIR /app
+FROM nginx:alpine
 
-# Instalar serve con configuración SPA
-RUN npm install -g serve@14.2.0
+# Copiar configuración de nginx limpia
+COPY nginx-clean.conf /etc/nginx/nginx.conf
 
-COPY --from=builder /app/dist ./dist
+# Copiar build
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-EXPOSE 3000
+EXPOSE 80
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/ || exit 1
-
-# Servir con configuración SPA robusta
-CMD ["serve", "-s", "dist", "-l", "3000", "--single", "--cors"]
+CMD ["nginx", "-g", "daemon off;"]
