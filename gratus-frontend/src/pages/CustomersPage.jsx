@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { customersAPI } from '../services/api'
 import { Plus, Search, Edit, Trash2 } from 'lucide-react'
+import './CustomersPage.css'
 
 const CustomersPage = () => {
     const [customers, setCustomers] = useState([])
@@ -10,7 +11,6 @@ const CustomersPage = () => {
     const [editingCustomer, setEditingCustomer] = useState(null)
     const [loading, setLoading] = useState(false)
 
-    // Usar SOLO los campos que existen en la base de datos
     const [formData, setFormData] = useState({
         nombre: '',
         telefono: '',
@@ -56,7 +56,6 @@ const CustomersPage = () => {
         setLoading(true)
 
         try {
-            // Preparar datos SOLO con campos que existen en la base de datos
             const customerData = {
                 nombre: formData.nombre,
                 telefono: formData.telefono || null,
@@ -117,194 +116,209 @@ const CustomersPage = () => {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-gray-800">Gestión de Clientes</h1>
-                <button
-                    onClick={() => setShowForm(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-                >
-                    <Plus className="w-5 h-5" />
-                    <span>Nuevo Cliente</span>
-                </button>
-            </div>
-
-            {/* Búsqueda */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                        type="text"
-                        placeholder="Buscar clientes por nombre, email o teléfono..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                </div>
-            </div>
-
-            {/* Formulario */}
-            {showForm && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h2 className="text-xl font-semibold mb-4">
-                        {editingCustomer ? 'Editar Cliente' : 'Nuevo Cliente'}
-                    </h2>
-
-                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Nombre Completo *
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.nombre}
-                                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                required
-                                maxLength={150}
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Teléfono
-                            </label>
-                            <input
-                                type="tel"
-                                value={formData.telefono}
-                                onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="Opcional"
-                                maxLength={50}
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="Opcional"
-                                maxLength={150}
-                            />
-                        </div>
-
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Dirección
-                            </label>
-                            <textarea
-                                value={formData.direccion}
-                                onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
-                                rows="3"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="Opcional"
-                            />
-                        </div>
-
-                        <div className="md:col-span-2 flex justify-end space-x-3">
-                            <button
-                                type="button"
-                                onClick={resetForm}
-                                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center space-x-2"
-                            >
-                                {loading ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        <span>Guardando...</span>
-                                    </>
-                                ) : (
-                                    <span>{editingCustomer ? 'Actualizar' : 'Crear'}</span>
-                                )}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            )}
-
-            {/* Lista de Clientes */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">
-                    Lista de Clientes {filteredCustomers.length > 0 && `(${filteredCustomers.length})`}
-                </h2>
-
-                {filteredCustomers.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                        {searchTerm ? 'No se encontraron clientes' : 'No hay clientes registrados'}
+        <div className="customers-page">
+            <div className="customers-container">
+                {/* Header */}
+                <div className="customers-header">
+                    <div>
+                        <h1 className="customers-title">Gestión de Clientes</h1>
+                        <p className="sales-subtitle">Administra la información de tus clientes</p>
                     </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b">
-                                    <th className="text-left py-3 px-4">Nombre</th>
-                                    <th className="text-left py-3 px-4">Teléfono</th>
-                                    <th className="text-left py-3 px-4">Email</th>
-                                    <th className="text-left py-3 px-4">Dirección</th>
-                                    <th className="text-left py-3 px-4">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredCustomers.map((customer) => (
-                                    <tr key={customer.id} className="border-b hover:bg-gray-50">
-                                        <td className="py-3 px-4 font-medium">{customer.nombre}</td>
-                                        <td className="py-3 px-4">
-                                            {customer.telefono ? (
-                                                <span className="text-blue-600">{customer.telefono}</span>
-                                            ) : (
-                                                <span className="text-gray-400">-</span>
-                                            )}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            {customer.email ? (
-                                                <span className="text-blue-600">{customer.email}</span>
-                                            ) : (
-                                                <span className="text-gray-400">-</span>
-                                            )}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            {customer.direccion ? (
-                                                <span className="text-sm text-gray-600">{customer.direccion}</span>
-                                            ) : (
-                                                <span className="text-gray-400">-</span>
-                                            )}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <div className="flex space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(customer)}
-                                                    className="p-1 text-blue-600 hover:text-blue-800"
-                                                    title="Editar cliente"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(customer.id)}
-                                                    className="p-1 text-red-600 hover:text-red-800"
-                                                    title="Eliminar cliente"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <button
+                        onClick={() => setShowForm(true)}
+                        className="new-customer-btn"
+                    >
+                        <Plus className="icon" />
+                        <span>Nuevo Cliente</span>
+                    </button>
+                </div>
+
+                {/* Búsqueda */}
+                <div className="search-panel">
+                    <div className="search-input-container">
+                        <Search className="search-icon" />
+                        <input
+                            type="text"
+                            placeholder="Buscar clientes por nombre, email o teléfono..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="search-input"
+                        />
+                    </div>
+                </div>
+
+                {/* Formulario */}
+                {showForm && (
+                    <div className="customer-form-panel">
+                        <h2 className="form-title">
+                            {editingCustomer ? 'Editar Cliente' : 'Nuevo Cliente'}
+                        </h2>
+
+                        <form onSubmit={handleSubmit} className="customer-form">
+                            <div className="form-group full-width">
+                                <label className="form-label">
+                                    Nombre Completo *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.nombre}
+                                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                                    className="form-input"
+                                    required
+                                    maxLength={150}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Teléfono
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={formData.telefono}
+                                    onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                                    className="form-input"
+                                    placeholder="Opcional"
+                                    maxLength={50}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    className="form-input"
+                                    placeholder="Opcional"
+                                    maxLength={150}
+                                />
+                            </div>
+
+                            <div className="form-group full-width">
+                                <label className="form-label">
+                                    Dirección
+                                </label>
+                                <textarea
+                                    value={formData.direccion}
+                                    onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
+                                    rows="3"
+                                    className="form-input form-textarea"
+                                    placeholder="Opcional"
+                                />
+                            </div>
+
+                            <div className="form-actions">
+                                <button
+                                    type="button"
+                                    onClick={resetForm}
+                                    className="cancel-btn"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="submit-btn"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <div className="loading-spinner"></div>
+                                            <span>Guardando...</span>
+                                        </>
+                                    ) : (
+                                        <span>{editingCustomer ? 'Actualizar' : 'Crear'}</span>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 )}
+
+                {/* Lista de Clientes */}
+                <div className="customers-list-panel">
+                    <h2 className="list-title">
+                        Lista de Clientes {filteredCustomers.length > 0 && `(${filteredCustomers.length})`}
+                    </h2>
+
+                    {filteredCustomers.length === 0 ? (
+                        <div className="empty-state">
+                            <div className="empty-icon">👥</div>
+                            <div className="empty-title">
+                                {searchTerm ? 'No se encontraron clientes' : 'No hay clientes registrados'}
+                            </div>
+                            <div className="empty-subtitle">
+                                {!searchTerm && 'Comienza agregando tu primer cliente'}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="customers-table-container">
+                            <table className="customers-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Teléfono</th>
+                                        <th>Email</th>
+                                        <th>Dirección</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredCustomers.map((customer) => (
+                                        <tr key={customer.id}>
+                                            <td className="name-cell">{customer.nombre}</td>
+                                            <td>
+                                                {customer.telefono ? (
+                                                    <a href={`tel:${customer.telefono}`} className="phone-link">
+                                                        {customer.telefono}
+                                                    </a>
+                                                ) : (
+                                                    <span className="empty-field">No especificado</span>
+                                                )}
+                                            </td>
+                                            <td>
+                                                {customer.email ? (
+                                                    <a href={`mailto:${customer.email}`} className="email-link">
+                                                        {customer.email}
+                                                    </a>
+                                                ) : (
+                                                    <span className="empty-field">No especificado</span>
+                                                )}
+                                            </td>
+                                            <td>
+                                                {customer.direccion ? (
+                                                    <span className="address-text">{customer.direccion}</span>
+                                                ) : (
+                                                    <span className="empty-field">No especificada</span>
+                                                )}
+                                            </td>
+                                            <td>
+                                                <div className="actions-cell">
+                                                    <button
+                                                        onClick={() => handleEdit(customer)}
+                                                        className="action-btn edit-btn"
+                                                        title="Editar cliente"
+                                                    >
+                                                        <Edit className="icon" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(customer.id)}
+                                                        className="action-btn delete-btn"
+                                                        title="Eliminar cliente"
+                                                    >
+                                                        <Trash2 className="icon" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )
