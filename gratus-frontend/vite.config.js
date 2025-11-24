@@ -25,7 +25,10 @@ export default defineConfig(({ mode }) => {
                         vendor: ['react', 'react-dom'],
                         router: ['react-router-dom'],
                         utils: ['axios', 'date-fns']
-                    }
+                    },
+                    entryFileNames: `[name].js`,
+                    chunkFileNames: `[name].js`,
+                    assetFileNames: `[name].[ext]`
                 }
             }
         },
