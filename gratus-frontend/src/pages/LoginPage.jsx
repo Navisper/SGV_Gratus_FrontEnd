@@ -100,7 +100,7 @@ const LoginPage = () => {
 
                     <div className="mt-4">
                         <button
-                            onClick={() => window.location.href = 'http://localhost:8000/auth/google/login'}
+                            onClick={() => window.location.href = 'https://sgv-gratus-backend.onrender.com/auth/google/login'}
                             className="btn btn-outline w-full"
                         >
                             <svg className="icon" viewBox="0 0 24 24" width="20" height="20">
