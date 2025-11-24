@@ -28,15 +28,15 @@ const Layout = ({ children }) => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="app">
             {/* Sidebar */}
-            <div className="w-64 bg-white shadow-lg">
-                <div className="p-6">
-                    <h1 className="text-2xl font-bold text-gray-800">Gratus</h1>
-                    <p className="text-sm text-gray-600">Sistema de Gestión</p>
+            <div className="sidebar">
+                <div className="sidebar-header">
+                    <h1 className="sidebar-title">Gratus</h1>
+                    <p className="sidebar-subtitle">Sistema de Gestión</p>
                 </div>
 
-                <nav className="mt-8">
+                <nav className="sidebar-nav">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = location.pathname === item.path;
@@ -44,12 +44,9 @@ const Layout = ({ children }) => {
                             <Link
                                 key={item.path}
                                 to={item.path}
-                                className={`flex items-center px-6 py-3 text-sm font-medium ${isActive
-                                        ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                                        : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
+                                className={`nav-item ${isActive ? 'active' : ''}`}
                             >
-                                <Icon className="w-5 h-5 mr-3" />
+                                <Icon className="icon" />
                                 {item.label}
                             </Link>
                         );
@@ -58,28 +55,28 @@ const Layout = ({ children }) => {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col">
+            <div className="main-content">
                 {/* Header */}
-                <header className="bg-white shadow-sm border-b">
-                    <div className="flex justify-between items-center px-8 py-4">
+                <header className="header">
+                    <div className="header-content">
                         <div>
-                            <h2 className="text-lg font-semibold text-gray-800">
+                            <h2 className="header-title">
                                 {menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
                             </h2>
                         </div>
-                        <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-2">
-                                <User className="w-5 h-5 text-gray-400" />
-                                <span className="text-sm text-gray-700">{user?.nombre}</span>
-                                <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                        <div className="user-info">
+                            <div className="user-details">
+                                <User className="icon" />
+                                <span className="user-name">{user?.nombre}</span>
+                                <span className="user-role">
                                     {user?.rol}
                                 </span>
                             </div>
                             <button
                                 onClick={handleLogout}
-                                className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800"
+                                className="logout-btn"
                             >
-                                <LogOut className="w-4 h-4" />
+                                <LogOut className="icon" />
                                 <span>Cerrar Sesión</span>
                             </button>
                         </div>
@@ -87,7 +84,7 @@ const Layout = ({ children }) => {
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 p-8 overflow-auto">
+                <main className="page-content">
                     {children}
                 </main>
             </div>

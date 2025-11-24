@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+
+console.log('API Base URL:', API_BASE_URL)
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -34,8 +36,10 @@ export const authAPI = {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
     getMe: () => api.get('/auth/me'),
-    googleLogin: () => window.location.href = '/api/auth/google/login',
-};
+    googleLogin: () => {
+        window.location.href = `${API_BASE_URL}/auth/google/login`
+    },
+}
 
 export const productsAPI = {
     list: (skip = 0, take = 100) => api.get(`/products?skip=${skip}&take=${take}`),
