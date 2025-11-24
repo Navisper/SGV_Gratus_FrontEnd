@@ -1,7 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react'
 import { productsAPI } from '../services/api'
-import { Plus, Search, Edit, Trash2, Barcode, Filter } from 'lucide-react'
+import { Plus, Search, Edit, Trash2 } from 'lucide-react'
+import './ProductsPage.css'
 
 const ProductsPage = () => {
     const [products, setProducts] = useState([])
@@ -12,7 +13,6 @@ const ProductsPage = () => {
     const [editingProduct, setEditingProduct] = useState(null)
     const [loading, setLoading] = useState(false)
 
-    // Usar SOLO los campos que existen en la base de datos
     const [formData, setFormData] = useState({
         codigo_unico: '',
         nombre: '',
@@ -64,7 +64,6 @@ const ProductsPage = () => {
         setLoading(true)
 
         try {
-            // Preparar datos SOLO con campos que existen en la base de datos
             const productData = {
                 nombre: formData.nombre,
                 categoria: formData.categoria || null,
@@ -78,7 +77,6 @@ const ProductsPage = () => {
             if (editingProduct) {
                 await productsAPI.update(editingProduct.codigo_unico, productData)
             } else {
-                // Para crear, incluir código único
                 await productsAPI.create({
                     ...productData,
                     codigo_unico: formData.codigo_unico
@@ -140,266 +138,274 @@ const ProductsPage = () => {
     }
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-gray-800">Gestión de Productos</h1>
-                <button
-                    onClick={() => setShowForm(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-                >
-                    <Plus className="w-5 h-5" />
-                    <span>Nuevo Producto</span>
-                </button>
-            </div>
-
-            {/* Búsqueda */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex gap-4 items-center mb-4">
-                    <select
-                        value={searchType}
-                        onChange={(e) => setSearchType(e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        <div className="products-page">
+            <div className="products-container">
+                {/* Header */}
+                <div className="products-header">
+                    <div>
+                        <h1 className="products-title">Gestión de Productos</h1>
+                        <p className="sales-subtitle">Administra y organiza tu inventario de productos</p>
+                    </div>
+                    <button
+                        onClick={() => setShowForm(true)}
+                        className="new-product-btn"
                     >
-                        <option value="nombre">Buscar por Nombre</option>
-                        <option value="codigo">Buscar por Código</option>
-                    </select>
+                        <Plus className="icon" />
+                        <span>Nuevo Producto</span>
+                    </button>
+                </div>
 
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <input
-                            type="text"
-                            placeholder={`Buscar productos por ${searchType === 'nombre' ? 'nombre' : 'código'}...`}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
+                {/* Búsqueda */}
+                <div className="search-panel">
+                    <div className="search-controls">
+                        <select
+                            value={searchType}
+                            onChange={(e) => setSearchType(e.target.value)}
+                            className="search-type-select"
+                        >
+                            <option value="nombre">Buscar por Nombre</option>
+                            <option value="codigo">Buscar por Código</option>
+                        </select>
+
+                        <div className="search-input-container">
+                            <Search className="search-icon" />
+                            <input
+                                type="text"
+                                placeholder={`Buscar productos por ${searchType === 'nombre' ? 'nombre' : 'código'}...`}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="search-input"
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Formulario */}
-            {showForm && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h2 className="text-xl font-semibold mb-4">
-                        {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
-                    </h2>
+                {/* Formulario */}
+                {showForm && (
+                    <div className="product-form-panel">
+                        <h2 className="form-title">
+                            {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
+                        </h2>
 
-                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Código Único {!editingProduct && '*'}
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.codigo_unico}
-                                onChange={(e) => setFormData({ ...formData, codigo_unico: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                required={!editingProduct}
-                                disabled={!!editingProduct}
-                                maxLength={50}
-                            />
-                        </div>
+                        <form onSubmit={handleSubmit} className="product-form">
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Código Único {!editingProduct && '*'}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.codigo_unico}
+                                    onChange={(e) => setFormData({ ...formData, codigo_unico: e.target.value })}
+                                    className="form-input"
+                                    required={!editingProduct}
+                                    disabled={!!editingProduct}
+                                    maxLength={50}
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Nombre *
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.nombre}
-                                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                required
-                                maxLength={150}
-                            />
-                        </div>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Nombre *
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.nombre}
+                                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                                    className="form-input"
+                                    required
+                                    maxLength={150}
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Categoría
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.categoria}
-                                onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="Opcional"
-                                maxLength={100}
-                            />
-                        </div>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Categoría
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.categoria}
+                                    onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                                    className="form-input"
+                                    placeholder="Opcional"
+                                    maxLength={100}
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Departamento
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.departamento}
-                                onChange={(e) => setFormData({ ...formData, departamento: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="Opcional"
-                                maxLength={100}
-                            />
-                        </div>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Departamento
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.departamento}
+                                    onChange={(e) => setFormData({ ...formData, departamento: e.target.value })}
+                                    className="form-input"
+                                    placeholder="Opcional"
+                                    maxLength={100}
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Tipo
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.tipo}
-                                onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="Opcional"
-                                maxLength={100}
-                            />
-                        </div>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Tipo
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.tipo}
+                                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
+                                    className="form-input"
+                                    placeholder="Opcional"
+                                    maxLength={100}
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Precio
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                value={formData.precio}
-                                onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="0.00"
-                            />
-                        </div>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Precio
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.precio}
+                                    onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
+                                    className="form-input"
+                                    placeholder="0.00"
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Costo
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                value={formData.costo}
-                                onChange={(e) => setFormData({ ...formData, costo: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="0.00"
-                            />
-                        </div>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Costo
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.costo}
+                                    onChange={(e) => setFormData({ ...formData, costo: e.target.value })}
+                                    className="form-input"
+                                    placeholder="0.00"
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Stock
-                            </label>
-                            <input
-                                type="number"
-                                value={formData.stock}
-                                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                placeholder="0"
-                            />
-                        </div>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Stock
+                                </label>
+                                <input
+                                    type="number"
+                                    value={formData.stock}
+                                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                    className="form-input"
+                                    placeholder="0"
+                                />
+                            </div>
 
-                        <div className="md:col-span-2 flex justify-end space-x-3">
-                            <button
-                                type="button"
-                                onClick={resetForm}
-                                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center space-x-2"
-                            >
-                                {loading ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        <span>Guardando...</span>
-                                    </>
-                                ) : (
-                                    <span>{editingProduct ? 'Actualizar' : 'Crear'}</span>
-                                )}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            )}
-
-            {/* Lista de Productos */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">
-                    Lista de Productos {filteredProducts.length > 0 && `(${filteredProducts.length})`}
-                </h2>
-
-                {filteredProducts.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                        {searchTerm ? 'No se encontraron productos' : 'No hay productos registrados'}
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b">
-                                    <th className="text-left py-3 px-4">Código</th>
-                                    <th className="text-left py-3 px-4">Nombre</th>
-                                    <th className="text-left py-3 px-4">Categoría</th>
-                                    <th className="text-left py-3 px-4">Precio</th>
-                                    <th className="text-left py-3 px-4">Stock</th>
-                                    <th className="text-left py-3 px-4">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredProducts.map((product) => (
-                                    <tr key={product.codigo_unico} className="border-b hover:bg-gray-50">
-                                        <td className="py-3 px-4 font-mono text-sm">{product.codigo_unico}</td>
-                                        <td className="py-3 px-4">
-                                            <div className="font-medium">{product.nombre}</div>
-                                            {product.tipo && (
-                                                <div className="text-sm text-gray-600">{product.tipo}</div>
-                                            )}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            {product.categoria && (
-                                                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                                                    {product.categoria}
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            {product.precio ? `$${product.precio}` : '-'}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <span className={`px-2 py-1 text-xs rounded-full ${(product.stock || 0) > 0
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                {product.stock || 0}
-                                            </span>
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <div className="flex space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(product)}
-                                                    className="p-1 text-blue-600 hover:text-blue-800"
-                                                    title="Editar producto"
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(product.codigo_unico)}
-                                                    className="p-1 text-red-600 hover:text-red-800"
-                                                    title="Eliminar producto"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                            <div className="form-actions">
+                                <button
+                                    type="button"
+                                    onClick={resetForm}
+                                    className="cancel-btn"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="submit-btn"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <div className="loading-spinner"></div>
+                                            <span>Guardando...</span>
+                                        </>
+                                    ) : (
+                                        <span>{editingProduct ? 'Actualizar' : 'Crear'}</span>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 )}
+
+                {/* Lista de Productos */}
+                <div className="products-list-panel">
+                    <h2 className="list-title">
+                        Lista de Productos {filteredProducts.length > 0 && `(${filteredProducts.length})`}
+                    </h2>
+
+                    {filteredProducts.length === 0 ? (
+                        <div className="empty-state">
+                            <div className="empty-icon">📦</div>
+                            <div className="empty-title">
+                                {searchTerm ? 'No se encontraron productos' : 'No hay productos registrados'}
+                            </div>
+                            <div className="empty-subtitle">
+                                {!searchTerm && 'Comienza agregando tu primer producto'}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="products-table-container">
+                            <table className="products-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredProducts.map((product) => (
+                                        <tr key={product.codigo_unico}>
+                                            <td className="code-cell">{product.codigo_unico}</td>
+                                            <td className="name-cell">
+                                                <div>{product.nombre}</div>
+                                                {product.tipo && (
+                                                    <div className="type-text">{product.tipo}</div>
+                                                )}
+                                            </td>
+                                            <td>
+                                                {product.categoria && (
+                                                    <span className="category-badge">
+                                                        {product.categoria}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="price-cell">
+                                                {product.precio ? `$${product.precio}` : '-'}
+                                            </td>
+                                            <td>
+                                                <span className={`stock-badge ${(product.stock || 0) > 0 ? 'stock-available' : 'stock-unavailable'}`}>
+                                                    {product.stock || 0}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="actions-cell">
+                                                    <button
+                                                        onClick={() => handleEdit(product)}
+                                                        className="action-btn edit-btn"
+                                                        title="Editar producto"
+                                                    >
+                                                        <Edit className="icon" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(product.codigo_unico)}
+                                                        className="action-btn delete-btn"
+                                                        title="Eliminar producto"
+                                                    >
+                                                        <Trash2 className="icon" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )
