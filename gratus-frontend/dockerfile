@@ -1,16 +1,17 @@
-# Usar una imagen oficial de Node.js optimizada
+# Etapa de build
 FROM node:18-alpine AS builder
 
-# Establecer el directorio de trabajo
+# Instalar dependencias del sistema necesarias
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
-# Copiar archivos de configuración
+# Copiar archivos de package primero (para mejor cache de Docker)
 COPY package*.json ./
 COPY vite.config.js ./
-COPY .env ./
 
-# Instalar dependencias
-RUN npm ci --only=production
+# Instalar todas las dependencias
+RUN npm ci
 
 # Copiar el código fuente
 COPY . .
@@ -19,30 +20,29 @@ COPY . .
 RUN npm run build
 
 # Etapa de producción
-FROM nginx:alpine AS production
+FROM node:18-alpine
 
-# Instalar curl para health checks
-RUN apk add --no-cache curl
+WORKDIR /app
+
+# Instalar serve para servir archivos estáticos
+RUN npm install -g serve@14.2.0
+
+# Crear usuario no-root para seguridad
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
 
 # Copiar los archivos construidos desde la etapa builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
 
-# Copiar configuración personalizada de nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+# Cambiar al usuario no-root
+USER nextjs
 
-# Crear un usuario no-root para seguridad
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-# Cambiar ownership de los archivos
-RUN chown -R nextjs:nodejs /usr/share/nginx/html
-
-# Exponer el puerto
-EXPOSE 80
+# Exponer puerto (Render usa $PORT)
+EXPOSE $PORT
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost/ || exit 1
+  CMD curl -f http://localhost:$PORT/ || exit 1
 
-# Iniciar nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Comando para servir la aplicación en el puerto dinámico
+CMD ["sh", "-c", "serve -s dist -l $PORT"]
