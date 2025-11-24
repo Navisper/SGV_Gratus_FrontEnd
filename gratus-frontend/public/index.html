@@ -1,8 +1,0 @@
-<script>
-    // Script temporal para debug
-    if (window.location.pathname.startsWith('/auth/') &&
-        !window.location.pathname.startsWith('/auth/callback')) {
-        console.warn('Redirigiendo ruta de auth incorrecta:', window.location.pathname)
-        window.location.replace('/')
-    }
-</script>
