@@ -1,48 +1,30 @@
-# Etapa de build
 FROM node:18-alpine AS builder
-
-# Instalar dependencias del sistema necesarias
-RUN apk add --no-cache curl
 
 WORKDIR /app
 
-# Copiar archivos de package primero (para mejor cache de Docker)
 COPY package*.json ./
 COPY vite.config.js ./
 
-# Instalar todas las dependencias
 RUN npm ci
 
-# Copiar el código fuente
 COPY . .
 
-# Construir la aplicación
 RUN npm run build
 
-# Etapa de producción
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Instalar serve para servir archivos estáticos
+# Instalar serve con soporte SPA
 RUN npm install -g serve@14.2.0
 
-# Crear usuario no-root para seguridad
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+COPY --from=builder /app/dist ./dist
 
-# Copiar los archivos construidos desde la etapa builder
-COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
-
-# Cambiar al usuario no-root
-USER nextjs
-
-# Exponer puerto (Render usa $PORT)
-EXPOSE $PORT
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:$PORT/ || exit 1
+  CMD curl -f http://localhost:3000/ || exit 1
 
-# Comando para servir la aplicación en el puerto dinámico
-CMD ["sh", "-c", "serve -s dist -l $PORT"]
+# Servir con soporte SPA (--single flag)
+CMD ["serve", "-s", "dist", "-l", "3000", "--single"]
