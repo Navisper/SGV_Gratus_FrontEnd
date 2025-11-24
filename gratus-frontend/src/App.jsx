@@ -12,21 +12,21 @@ import LoadingSpinner from './components/common/LoadingSpinner'
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
-
+  
   if (loading) {
     return <LoadingSpinner message="Verificando autenticación..." />
   }
-
+  
   return user ? children : <Navigate to="/login" />
 }
 
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth()
-
+  
   if (loading) {
     return <LoadingSpinner message="Verificando autenticación..." />
   }
-
+  
   return !user ? children : <Navigate to="/" />
 }
 
@@ -69,8 +69,8 @@ function App() {
               </Layout>
             </ProtectedRoute>
           } />
-
-          {/* Ruta de fallback */}
+          
+          {/* Ruta de fallback para SPA */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>

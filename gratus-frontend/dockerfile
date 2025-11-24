@@ -1,0 +1,48 @@
+# Usar una imagen oficial de Node.js optimizada
+FROM node:18-alpine AS builder
+
+# Establecer el directorio de trabajo
+WORKDIR /app
+
+# Copiar archivos de configuración
+COPY package*.json ./
+COPY vite.config.js ./
+COPY .env ./
+
+# Instalar dependencias
+RUN npm ci --only=production
+
+# Copiar el código fuente
+COPY . .
+
+# Construir la aplicación
+RUN npm run build
+
+# Etapa de producción
+FROM nginx:alpine AS production
+
+# Instalar curl para health checks
+RUN apk add --no-cache curl
+
+# Copiar los archivos construidos desde la etapa builder
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copiar configuración personalizada de nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Crear un usuario no-root para seguridad
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# Cambiar ownership de los archivos
+RUN chown -R nextjs:nodejs /usr/share/nginx/html
+
+# Exponer el puerto
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost/ || exit 1
+
+# Iniciar nginx
+CMD ["nginx", "-g", "daemon off;"]
