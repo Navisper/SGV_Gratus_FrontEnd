@@ -9,6 +9,7 @@ import {
     LogOut,
     User,
 } from 'lucide-react';
+import './Layout.css';
 
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
@@ -69,7 +70,7 @@ const Layout = ({ children }) => {
                                 <User className="icon" />
                                 <span className="user-name">{user?.nombre}</span>
                                 <span className="user-role">
-                                    {user?.rol}
+                                    {user?.rol || 'Usuario'}
                                 </span>
                             </div>
                             <button
