@@ -8,7 +8,7 @@
 /* Sidebar */
 .sidebar {
     width: 280px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: white;
     color: white;
     display: flex;
     flex-direction: column;
@@ -58,13 +58,13 @@
 }
 
 .nav-item:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(135deg, #667eea 0%, #7c5a9e 100%);
     color: white;
     transform: translateX(4px);
 }
 
 .nav-item.active {
-    background: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     font-weight: 600;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
